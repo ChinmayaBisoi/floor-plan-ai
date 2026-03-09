@@ -586,6 +586,54 @@
         }
       }
 
+      .demo-compare {
+        @apply w-full max-w-5xl mx-auto px-6 mb-20;
+      }
+
+      .demo-compare-inner {
+        @apply rounded-3xl overflow-hidden bg-white border border-zinc-200/80 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08),0_8px_48px_-8px_rgba(249,115,22,0.12)];
+      }
+
+      .demo-compare-header {
+        @apply text-center px-6 pt-8 pb-2;
+      }
+
+      .demo-compare-title {
+        @apply text-2xl md:text-3xl font-serif font-semibold text-zinc-900 tracking-tight;
+      }
+
+      .demo-compare-subtitle {
+        @apply text-sm text-zinc-500 mt-2 max-w-xl mx-auto leading-relaxed;
+      }
+
+      .demo-compare-labels {
+        @apply flex items-center justify-between px-4 pt-2 pb-1 text-xs font-medium uppercase tracking-wider text-zinc-400;
+      }
+
+      .demo-compare-stage {
+        @apply relative bg-gradient-to-b from-zinc-50 to-zinc-100/80 min-h-[18rem] px-4 pb-6;
+      }
+
+      .demo-compare-stage [data-rcs="comparison-viewport"] {
+        @apply rounded-xl;
+      }
+
+      .demo-compare-img {
+        @apply w-full h-auto object-contain rounded-lg;
+      }
+
+      .demo-compare-hint {
+        @apply flex items-center justify-center gap-2 py-3 text-xs text-zinc-400;
+      }
+
+      .demo-compare-stage .__rcs-handle-button {
+        @apply bg-primary border-primary shadow-md;
+      }
+
+      .demo-compare-stage .__rcs-handle-line {
+        @apply bg-primary/90;
+      }
+
       .demo-video-modal {
         @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm;
       }
@@ -606,8 +654,20 @@
         @apply p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors;
       }
 
+      .demo-video-modal-player-wrap {
+        @apply relative w-full aspect-video bg-black min-h-[200px];
+      }
+
+      .demo-video-modal-thumbnail {
+        @apply absolute inset-0 w-full h-full object-cover;
+      }
+
+      .demo-video-modal-spinner {
+        @apply absolute inset-0 flex items-center justify-center bg-black/50;
+      }
+
       .demo-video-modal-player {
-        @apply w-full h-auto block;
+        @apply relative w-full h-full min-h-[200px] block transition-opacity duration-300;
       }
 
       .upload-shell {
