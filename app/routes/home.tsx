@@ -2,6 +2,7 @@ import type { Route } from "./+types/home";
 import Navbar from "../../components/Navbar";
 import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
 import Button from "../../components/ui/Button";
+import DemoVideoModal from "../../components/DemoVideoModal";
 import Upload from "../../components/Upload";
 import { useNavigate, useOutletContext } from "react-router";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +24,7 @@ export default function Home() {
   const { isSignedIn, authReady } = useOutletContext<AuthContext>();
   const [projects, setProjects] = useState<DesignItem[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
   const isCreatingProjectRef = useRef(false);
 
   const handleUploadComplete = async (base64Image: string) => {
@@ -113,10 +115,16 @@ export default function Home() {
           <a href="#upload" className="cta">
             Start Building <ArrowRight className="icon" />
           </a>
-          <Button variant="outline" size="lg" className="demo">
+          <button
+            type="button"
+            className="actions-demo-link"
+            onClick={() => setShowDemoModal(true)}
+          >
             Watch Demo
-          </Button>
+          </button>
         </div>
+
+        <DemoVideoModal open={showDemoModal} onClose={() => setShowDemoModal(false)} />
 
         <div id="upload" className="upload-shell">
           <div className="grid-overlay" />

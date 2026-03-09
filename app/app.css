@@ -580,6 +580,34 @@
         .demo {
           @apply px-8 bg-white rounded-md hover:bg-zinc-50;
         }
+
+        .actions-demo-link {
+          @apply inline-flex items-center justify-center rounded-md border border-zinc-200 bg-white px-8 py-3 text-sm font-semibold text-zinc-900 hover:bg-zinc-50 hover:border-zinc-300 transition-colors no-underline;
+        }
+      }
+
+      .demo-video-modal {
+        @apply fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm;
+      }
+
+      .demo-video-modal-inner {
+        @apply relative w-full max-w-4xl rounded-2xl overflow-hidden bg-black shadow-2xl;
+      }
+
+      .demo-video-modal-header {
+        @apply flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/80;
+      }
+
+      .demo-video-modal-title {
+        @apply text-sm font-semibold text-white font-sans;
+      }
+
+      .demo-video-modal-close {
+        @apply p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors;
+      }
+
+      .demo-video-modal-player {
+        @apply w-full h-auto block;
       }
 
       .upload-shell {
