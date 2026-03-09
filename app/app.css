@@ -85,8 +85,56 @@
       @apply px-8 py-3 text-sm uppercase tracking-wide font-bold;
     }
 
-    &.btn--full {
+    &    .btn--full {
       @apply w-full;
+    }
+  }
+
+  .card {
+    @apply bg-surface border border-white/5 rounded-3xl p-6 shadow-xl;
+
+    .header {
+      @apply flex justify-between items-center mb-4;
+
+      h3 {
+        @apply text-lg font-semibold text-zinc-100;
+      }
+    }
+  }
+
+  .auth-modal {
+    @apply absolute inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4;
+
+    .panel {
+      @apply bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-center border border-zinc-200;
+
+      .icon {
+        @apply w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4;
+
+        .alert {
+          @apply text-primary w-6 h-6;
+        }
+      }
+
+      h3 {
+        @apply text-xl font-serif font-bold text-black mb-2;
+      }
+
+      p {
+        @apply text-zinc-600 text-sm mb-6 leading-relaxed;
+      }
+
+      .actions {
+        @apply flex flex-col space-y-3;
+
+        .confirm {
+          @apply bg-primary hover:bg-orange-600 text-white;
+        }
+
+        .cancel {
+          @apply text-xs text-zinc-400 hover:text-black mt-2;
+        }
+      }
     }
   }
 
@@ -275,12 +323,60 @@
           @apply w-full h-full object-contain transition-all duration-700 opacity-100 scale-100;
         }
 
+        &.is-processing .render-img {
+          @apply opacity-50 blur-sm scale-105;
+        }
+
         .render-placeholder {
           @apply w-full h-full flex items-center justify-center;
         }
 
         .render-fallback {
           @apply w-full h-full object-contain opacity-50;
+        }
+
+        .render-overlay {
+          @apply absolute inset-0 flex flex-col items-center justify-center z-30 bg-white/60 backdrop-blur-sm transition-opacity duration-300;
+
+          .rendering-card {
+            @apply bg-white px-6 py-4 rounded-xl border border-zinc-200 flex flex-col items-center shadow-2xl;
+
+            .spinner {
+              @apply w-8 h-8 mb-3 animate-spin text-primary;
+            }
+
+            .title {
+              @apply text-sm font-bold text-black;
+            }
+
+            .subtitle {
+              @apply text-xs text-zinc-500 mt-1;
+            }
+          }
+        }
+      }
+
+      &.compare {
+        @apply shadow-xl;
+
+        .panel-header {
+          @apply flex items-center justify-between;
+        }
+
+        .hint {
+          @apply text-xs text-zinc-400;
+        }
+
+        .compare-stage {
+          @apply relative bg-zinc-100 overflow-hidden;
+        }
+
+        .compare-fallback {
+          @apply flex items-center justify-center;
+        }
+
+        .compare-img {
+          @apply w-full h-auto object-contain;
         }
       }
     }
@@ -434,9 +530,45 @@
 
           .empty {
             @apply col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-10 text-center text-sm text-zinc-500;
+
+            .loading {
+              @apply text-zinc-500;
+            }
           }
         }
       }
+    }
+
+    .partners {
+      @apply border-t border-zinc-200 py-12 bg-white;
+
+      .section-inner {
+        @apply max-w-7xl mx-auto px-6;
+
+        .logos {
+          @apply grid grid-cols-2 md:grid-cols-5 gap-8 items-center opacity-60 grayscale hover:grayscale-0 transition-all duration-500;
+        }
+
+        .logo-item {
+          @apply flex items-center justify-center space-x-2 cursor-pointer;
+
+          div {
+            @apply text-zinc-800 group-hover:text-black transition-colors;
+          }
+
+          span {
+            @apply font-bold text-xl text-zinc-800 group-hover:text-black transition-colors tracking-tight;
+          }
+        }
+      }
+    }
+  }
+
+  .visualizer-route {
+    @apply min-h-screen flex items-center justify-center;
+
+    &.loading {
+      @apply text-sm text-zinc-500;
     }
   }
 }

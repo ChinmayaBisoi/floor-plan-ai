@@ -6,7 +6,8 @@
     "build": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "deploy:worker": "echo 'Start dev server (npm run dev) then visit http://localhost:5173/deploy-puter-worker.html' && open http://localhost:5173/deploy-puter-worker.html 2>/dev/null || true"
   },
   "dependencies": {
     "@heyputer/puter.js": "^2.2.11",
@@ -15,6 +16,7 @@
     "isbot": "^5.1.31",
     "lucide-react": "^0.577.0",
     "react": "^19.2.4",
+    "react-compare-slider": "^3.1.0",
     "react-dom": "^19.2.4",
     "react-router": "7.12.0"
   },

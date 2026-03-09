@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deploy Floor Plan AI Worker</title>
+  <script src="https://js.puter.com/v2/"></script>
+  <style>
+    body { font-family: system-ui; max-width: 560px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.25rem; }
+    button { padding: 0.5rem 1rem; background: #f97316; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    pre { background: #f4f4f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.875rem; }
+    .output { margin-top: 1rem; padding: 1rem; background: #ecfdf5; border: 1px solid #10b981; border-radius: 0.5rem; }
+    .error { background: #fef2f2; border-color: #ef4444; }
+    p { color: #71717a; font-size: 0.875rem; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Deploy Puter Worker for Floor Plan AI</h1>
+  <p>Sign in to Puter first (or you'll be prompted). Then click Deploy to upload and publish the worker. You'll get the URL to add to your <code>.env</code> as <code>VITE_PUTER_WORKER_URL</code>.</p>
+  <button id="deploy" onclick="deployWorker()">Deploy Worker</button>
+  <div id="result"></div>
+
+  <script>
+    const WORKER_CODE = `const PROJECT_PREFIX = "floorplan_project_";
+
+const jsonError = (status, message, extra = {}) => {
+  return new Response(JSON.stringify({ error: message, ...extra }), {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+};
+
+const getUserId = async (userPuter) => {
+  try {
+    const user = await userPuter.auth.getUser();
+    return user?.uuid || null;
+  } catch {
+    return null;
+  }
+};
+
+router.post("/api/projects/save", async ({ request, user }) => {
+  try {
+    const userPuter = user.puter;
+    if (!userPuter) return jsonError(401, "Authentication failed");
+    const body = await request.json();
+    const project = body?.project;
+    if (!project?.id || !project?.sourceImage)
+      return jsonError(400, "Project ID and source image are required");
+    const payload = { ...project, updatedAt: new Date().toISOString() };
+    const userId = await getUserId(userPuter);
+    if (!userId) return jsonError(401, "Authentication failed");
+    const key = \`\${PROJECT_PREFIX}\${project.id}\`;
+    await userPuter.kv.set(key, payload);
+    return { saved: true, id: project.id, project: payload };
+  } catch (e) {
+    return jsonError(500, "Failed to save project", { message: e.message || "Unknown error" });
+  }
+});
+
+router.get("/api/projects/list", async ({ user }) => {
+  try {
+    const userPuter = user.puter;
+    if (!userPuter) return jsonError(401, "Authentication failed");
+    const userId = await getUserId(userPuter);
+    if (!userId) return jsonError(401, "Authentication failed");
+    const projects = (await userPuter.kv.list(PROJECT_PREFIX, true)).map(({ value }) => ({ ...value, isPublic: true }));
+    return { projects };
+  } catch (e) {
+    return jsonError(500, "Failed to list projects", { message: e.message || "Unknown error" });
+  }
+});
+
+router.get("/api/projects/get", async ({ request, user }) => {
+  try {
+    const userPuter = user.puter;
+    if (!userPuter) return jsonError(401, "Authentication failed");
+    const userId = await getUserId(userPuter);
+    if (!userId) return jsonError(401, "Authentication failed");
+    const url = new URL(request.url);
+    const id = url.searchParams.get("id");
+    if (!id) return jsonError(400, "Project ID is required");
+    const key = \`\${PROJECT_PREFIX}\${id}\`;
+    const project = await userPuter.kv.get(key);
+    if (!project) return jsonError(404, "Project not found");
+    return { project };
+  } catch (e) {
+    return jsonError(500, "Failed to get project", { message: e.message || "Unknown error" });
+  }
+});`;
+
+    async function deployWorker() {
+      const btn = document.getElementById("deploy");
+      const result = document.getElementById("result");
+      btn.disabled = true;
+      result.innerHTML = "<p>Signing in and deploying... (may take 10–30 seconds)</p>";
+
+      try {
+        await puter.auth.signIn();
+      } catch (e) {
+        result.innerHTML = '<div class="output error"><strong>Sign-in required.</strong> Please try again and complete the Puter sign-in flow.</div>';
+        btn.disabled = false;
+        return;
+      }
+
+      try {
+        const workerName = "floor-plan-ai-" + Date.now().toString(36);
+        result.innerHTML = "<p>Writing worker file to Puter...</p>";
+
+        await puter.fs.write("floor-plan-ai-worker.js", WORKER_CODE);
+
+        result.innerHTML = "<p>Deploying worker. This may take up to 30 seconds...</p>";
+
+        const deployment = await puter.workers.create(workerName, "floor-plan-ai-worker.js");
+        const url = deployment.url;
+
+        result.innerHTML = '<div class="output"><strong>Worker deployed!</strong><br><br>Add this to your <code>.env</code> file:<br><pre>VITE_PUTER_WORKER_URL="' + url + '"</pre></div>';
+      } catch (e) {
+        result.innerHTML = '<div class="output error"><strong>Deployment failed:</strong> ' + (e.message || String(e)) + '</div>';
+      }
+
+      btn.disabled = false;
+    }
+  </script>
+</body>
+</html>

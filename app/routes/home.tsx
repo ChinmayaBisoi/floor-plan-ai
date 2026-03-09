@@ -4,7 +4,8 @@ import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
 import { useNavigate } from "react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createProject, getProjects } from "../../lib/puter.action";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,6 +21,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Home() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<DesignItem[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const isCreatingProjectRef = useRef(false);
 
   const handleUploadComplete = async (base64Image: string) => {
@@ -38,20 +40,47 @@ export default function Home() {
         timestamp: Date.now(),
       };
 
-      setProjects((prev) => [newItem, ...prev]);
+      const saved = await createProject({
+        item: newItem,
+        visibility: "private",
+      });
+
+      if (!saved) {
+        console.error("Failed to create project");
+        setProjects((prev) => [newItem, ...prev]);
+        navigate(`/visualizer/${newId}`, {
+          state: {
+            initialImage: base64Image,
+            initialRendered: null,
+            name,
+          },
+        });
+        return;
+      }
+
+      setProjects((prev) => [saved, ...prev]);
 
       navigate(`/visualizer/${newId}`, {
         state: {
-          initialImage: base64Image,
-          initialRendered: null,
+          initialImage: saved.sourceImage,
+          initialRendered: saved.renderedImage || null,
           name,
         },
       });
-      return true;
     } finally {
       isCreatingProjectRef.current = false;
     }
   };
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      setIsLoadingProjects(true);
+      const items = await getProjects();
+      setProjects(items);
+      setIsLoadingProjects(false);
+    };
+    fetchProjects();
+  }, []);
 
   return (
     <div className="home">
@@ -111,7 +140,11 @@ export default function Home() {
           </div>
 
           <div className="projects-grid">
-            {projects.length === 0 ? (
+            {isLoadingProjects ? (
+              <div className="empty">
+                <span className="loading">Loading projects...</span>
+              </div>
+            ) : projects.length === 0 ? (
               <div className="empty">
                 No projects yet. Upload a floor plan above to get started.
               </div>
