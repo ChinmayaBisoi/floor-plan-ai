@@ -157,7 +157,7 @@
           @apply flex items-center space-x-2 cursor-pointer no-underline text-inherit;
 
           .logo {
-            @apply w-6 h-6 text-black;
+            @apply w-6 h-6 text-primary;
           }
 
           .name {
@@ -274,7 +274,7 @@
         @apply flex items-center space-x-2 cursor-pointer no-underline text-inherit;
 
         .logo {
-          @apply w-6 h-6 text-black;
+          @apply w-6 h-6 text-primary;
         }
 
         .name {

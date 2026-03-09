@@ -1,6 +1,6 @@
-import { Box } from "lucide-react";
 import { useEffect, useState } from "react";
 import Button from "./ui/Button";
+import Logo from "./Logo";
 import PuterConsentModal from "./PuterConsentModal";
 import { useOutletContext } from "react-router";
 
@@ -48,7 +48,7 @@ const Navbar = () => {
       <nav className="inner">
         <div className="left">
           <a href="/" className="brand">
-            <Box className="logo" />
+            <Logo className="logo" />
             <span className="name">Floor Plan AI</span>
           </a>
           <ul className="links">

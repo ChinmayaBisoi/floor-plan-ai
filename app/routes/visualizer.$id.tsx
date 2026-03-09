@@ -6,8 +6,9 @@ import {
 } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { generate3DView } from "../../lib/ai.action";
-import { AlertCircle, Box, Download, RefreshCcw, Share2, X } from "lucide-react";
+import { AlertCircle, Download, RefreshCcw, Share2, X } from "lucide-react";
 import Button from "../../components/ui/Button";
+import Logo from "../../components/Logo";
 import { createProject, getProjectById } from "../../lib/puter.action";
 import {
   downloadImageFromUrl,
@@ -178,7 +179,7 @@ export default function VisualizerId() {
       <div className="visualizer">
         <nav className="topbar">
           <a href="/" className="brand">
-            <Box className="logo" />
+            <Logo className="logo" />
             <span className="name">Floor Plan AI</span>
           </a>
           <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
@@ -204,7 +205,7 @@ export default function VisualizerId() {
       <div className="visualizer">
         <nav className="topbar">
           <a href="/" className="brand">
-            <Box className="logo" />
+            <Logo className="logo" />
             <span className="name">Floor Plan AI</span>
           </a>
           <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
@@ -246,7 +247,7 @@ export default function VisualizerId() {
     <div className="visualizer">
       <nav className="topbar">
         <a href="/" className="brand">
-          <Box className="logo" />
+          <Logo className="logo" />
           <span className="name">Floor Plan AI</span>
         </a>
         <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
