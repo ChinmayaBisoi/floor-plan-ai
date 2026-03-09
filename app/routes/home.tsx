@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar";
 import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
 import Button from "../../components/ui/Button";
 import Upload from "../../components/Upload";
-import { useNavigate } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createProject, getProjects } from "../../lib/puter.action";
 
@@ -20,8 +20,9 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { isSignedIn } = useOutletContext<AuthContext>();
   const [projects, setProjects] = useState<DesignItem[]>([]);
-  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const isCreatingProjectRef = useRef(false);
 
   const handleUploadComplete = async (base64Image: string) => {
@@ -73,6 +74,11 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!isSignedIn) {
+      setProjects([]);
+      setIsLoadingProjects(false);
+      return;
+    }
     const fetchProjects = async () => {
       setIsLoadingProjects(true);
       const items = await getProjects();
@@ -80,7 +86,7 @@ export default function Home() {
       setIsLoadingProjects(false);
     };
     fetchProjects();
-  }, []);
+  }, [isSignedIn]);
 
   return (
     <div className="home">
@@ -128,61 +134,72 @@ export default function Home() {
       </section>
 
       <section className="projects">
-        <div className="section-inner">
-          <div className="section-head">
-            <div className="copy">
-              <h2>Projects</h2>
-              <p>
-                Your latest work and shared community projects, all in one
-                place.
-              </p>
-            </div>
-          </div>
+        <div className="projects-inner">
+          <header className="projects-head">
+            <h2>Projects</h2>
+            <p>Your floor plans and renders in one place.</p>
+          </header>
 
           <div className="projects-grid">
-            {isLoadingProjects ? (
-              <div className="empty">
-                <span className="loading">Loading projects...</span>
+            {!isSignedIn && (
+              <div className="projects-empty">
+                <p>Log in to view your projects.</p>
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.dispatchEvent(new CustomEvent("floorplan:openSignIn"))
+                  }
+                  className="projects-empty-cta"
+                >
+                  Log in
+                </button>
               </div>
-            ) : projects.length === 0 ? (
-              <div className="empty">
-                No projects yet. Upload a floor plan above to get started.
+            )}
+            {isSignedIn && isLoadingProjects && (
+              <div className="projects-empty">
+                <span className="projects-loading">Loading…</span>
               </div>
-            ) : (
-              projects.map(
-                ({ id, name, renderedImage, sourceImage, timestamp }) => (
-                  <div
-                    key={id}
-                    className="project-card group"
-                    onClick={() => navigate(`/visualizer/${id}`)}
-                  >
-                    <div className="preview">
-                      <img
-                        src={renderedImage || sourceImage}
-                        alt="Project"
-                      />
-                      <div className="badge">
-                        <span>Community</span>
+            )}
+            {isSignedIn && !isLoadingProjects && projects.length === 0 && (
+              <div className="projects-empty">
+                <p>No projects yet. Upload a floor plan above to get started.</p>
+              </div>
+            )}
+            {isSignedIn && !isLoadingProjects && projects.length > 0 && (
+              <>
+                {projects.map(
+                  ({ id, name, renderedImage, sourceImage, timestamp }) => (
+                    <article
+                      key={id}
+                      className="project-card group"
+                      onClick={() => navigate(`/visualizer/${id}`)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) =>
+                        (e.key === "Enter" || e.key === " ") &&
+                        navigate(`/visualizer/${id}`)
+                      }
+                    >
+                      <div className="project-card-preview">
+                        <img
+                          src={renderedImage || sourceImage}
+                          alt=""
+                        />
                       </div>
-                    </div>
-                    <div className="card-body">
-                      <div>
+                      <div className="project-card-body">
                         <h3>{name}</h3>
-                        <div className="meta">
-                          <Clock size={12} />
-                          <span>
-                            {new Date(timestamp).toLocaleDateString()}
-                          </span>
-                          <span>By You</span>
+                        <div className="project-card-meta">
+                          <Clock size={12} aria-hidden />
+                          <span>{new Date(timestamp).toLocaleDateString()}</span>
+                        </div>
+                        <div className="project-card-arrow">
+                          <ArrowUpRight size={18} aria-hidden />
                         </div>
                       </div>
-                      <div className="arrow">
-                        <ArrowUpRight size={18} />
-                      </div>
-                    </div>
-                  </div>
-                ),
-              )
+                    </article>
+                  ),
+                )}
+              </>
             )}
           </div>
         </div>

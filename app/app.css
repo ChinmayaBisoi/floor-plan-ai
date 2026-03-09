@@ -103,10 +103,10 @@
   }
 
   .auth-modal {
-    @apply absolute inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4;
+    @apply fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4;
 
     .panel {
-      @apply bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-center border border-zinc-200;
+      @apply relative bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-center border border-zinc-200;
 
       .icon {
         @apply w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4;
@@ -125,7 +125,7 @@
       }
 
       .actions {
-        @apply flex flex-col space-y-3;
+        @apply flex flex-col;
 
         .confirm {
           @apply bg-primary hover:bg-orange-600 text-white;
@@ -187,6 +187,10 @@
 
     .dropzone {
       @apply relative h-48 rounded-xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer bg-zinc-50 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-100;
+
+      &.dropzone-requires-auth .drop-input {
+        @apply pointer-events-none;
+      }
 
       &.is-dragging {
         @apply border-primary bg-orange-50;
@@ -467,73 +471,69 @@
     }
 
     .projects {
-      @apply py-24 bg-white relative border-b border-zinc-100;
+      @apply py-16 md:py-20 bg-zinc-50/50;
 
-      .section-inner {
-        @apply max-w-7xl mx-auto px-6;
+      .projects-inner {
+        @apply max-w-6xl mx-auto px-6;
+      }
 
-        .section-head .copy h2 {
-          @apply text-4xl font-serif text-black mb-4;
+      .projects-head {
+        @apply mb-10;
+
+        h2 {
+          @apply text-3xl md:text-4xl font-serif font-bold text-black mb-2;
         }
 
-        .section-head .copy p {
-          @apply text-zinc-500 text-lg;
+        p {
+          @apply text-zinc-500 text-sm md:text-base max-w-xl;
+        }
+      }
+
+      .projects-grid {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
+      }
+
+      .projects-empty {
+        @apply col-span-full rounded-2xl border border-dashed border-zinc-200 bg-white py-12 px-6 text-center;
+
+        p {
+          @apply text-zinc-500 text-sm mb-0;
         }
 
-        .projects-grid {
-          @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8;
+        .projects-empty-cta {
+          @apply mt-3 text-primary font-semibold text-sm hover:underline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 rounded;
+        }
 
-          .project-card {
-            @apply relative bg-white rounded-xl overflow-hidden border border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col h-full;
+        .projects-loading {
+          @apply text-zinc-400 text-sm;
+        }
+      }
 
-            .preview {
-              @apply overflow-hidden bg-zinc-100 relative;
-              aspect-ratio: 4 / 3;
-            }
+      .project-card {
+        @apply relative bg-white rounded-2xl overflow-hidden border border-zinc-200/80 shadow-sm hover:shadow-md hover:border-zinc-300 transition-all duration-200 cursor-pointer flex flex-col h-full;
 
-            .preview img {
-              @apply w-full h-full object-cover group-hover:scale-105 transition-transform duration-700;
-            }
+        .project-card-preview {
+          @apply overflow-hidden bg-zinc-100 relative;
+          aspect-ratio: 4 / 3;
+        }
 
-            .preview .badge {
-              @apply absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-md border border-zinc-200 shadow-sm;
+        .project-card-preview img {
+          @apply w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500;
+        }
 
-              span {
-                @apply text-[10px] font-bold uppercase tracking-wider text-zinc-800;
-              }
-            }
+        .project-card-body {
+          @apply p-4 flex items-start justify-between gap-3 border-t border-zinc-100;
 
-            .card-body {
-              @apply p-5 flex justify-between items-center bg-white border-t border-zinc-100 grow;
-
-              h3 {
-                @apply text-lg font-serif font-bold text-zinc-900 group-hover:text-primary transition-colors;
-              }
-
-              .meta {
-                @apply flex items-center text-zinc-400 text-xs mt-1 space-x-2;
-
-                span {
-                  @apply font-mono uppercase;
-                }
-
-                span:last-child {
-                  @apply text-zinc-400 text-[10px] uppercase tracking-wide;
-                }
-              }
-
-              .arrow {
-                @apply w-10 h-10 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300;
-              }
-            }
+          h3 {
+            @apply text-base font-serif font-semibold text-zinc-900 group-hover:text-primary transition-colors leading-tight min-w-0;
           }
 
-          .empty {
-            @apply col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-10 text-center text-sm text-zinc-500;
+          .project-card-meta {
+            @apply flex items-center gap-2 text-zinc-400 text-xs mt-1.5 shrink-0;
+          }
 
-            .loading {
-              @apply text-zinc-500;
-            }
+          .project-card-arrow {
+            @apply w-9 h-9 rounded-full bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover:bg-primary group-hover:text-white transition-colors shrink-0;
           }
         }
       }

@@ -1,10 +1,13 @@
 import { Box } from "lucide-react";
+import { useEffect, useState } from "react";
 import Button from "./ui/Button";
+import PuterConsentModal from "./PuterConsentModal";
 import { useOutletContext } from "react-router";
 
 const Navbar = () => {
   const { isSignedIn, userName, signIn, signOut } =
     useOutletContext<AuthContext>();
+  const [showConsent, setShowConsent] = useState(false);
 
   const handleAuthClick = async () => {
     if (isSignedIn) {
@@ -15,6 +18,11 @@ const Navbar = () => {
       }
       return;
     }
+    setShowConsent(true);
+  };
+
+  const handleConsentContinue = async () => {
+    setShowConsent(false);
     try {
       await signIn();
     } catch (e) {
@@ -22,8 +30,21 @@ const Navbar = () => {
     }
   };
 
+  useEffect(() => {
+    const openSignIn = () => setShowConsent(true);
+    window.addEventListener("floorplan:openSignIn", openSignIn);
+    return () => window.removeEventListener("floorplan:openSignIn", openSignIn);
+  }, []);
+
   return (
-    <header className="navbar">
+    <>
+      {showConsent && (
+        <PuterConsentModal
+          onContinue={handleConsentContinue}
+          onCancel={() => setShowConsent(false)}
+        />
+      )}
+      <header className="navbar">
       <nav className="inner">
         <div className="left">
           <a href="/" className="brand">
@@ -64,6 +85,7 @@ const Navbar = () => {
         </div>
       </nav>
     </header>
+    </>
   );
 };
 

@@ -1,24 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Deploy Floor Plan AI Worker</title>
   <script src="https://js.puter.com/v2/"></script>
   <style>
-    body { font-family: system-ui; max-width: 560px; margin: 2rem auto; padding: 0 1rem; }
-    h1 { font-size: 1.25rem; }
-    button { padding: 0.5rem 1rem; background: #f97316; color: white; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    pre { background: #f4f4f5; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; font-size: 0.875rem; }
-    .output { margin-top: 1rem; padding: 1rem; background: #ecfdf5; border: 1px solid #10b981; border-radius: 0.5rem; }
-    .error { background: #fef2f2; border-color: #ef4444; }
-    p { color: #71717a; font-size: 0.875rem; margin-top: 0.5rem; }
+    body {
+      font-family: system-ui;
+      max-width: 560px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #f97316;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    pre {
+      background: #f4f4f5;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+    }
+
+    .output {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+      border-radius: 0.5rem;
+    }
+
+    .error {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+
+    p {
+      color: #71717a;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
+
 <body>
   <h1>Deploy Puter Worker for Floor Plan AI</h1>
-  <p>Sign in to Puter first (or you'll be prompted). Then click Deploy to upload and publish the worker. You'll get the URL to add to your <code>.env</code> as <code>VITE_PUTER_WORKER_URL</code>.</p>
+  <p>Sign in to Puter first (or you'll be prompted). Then click Deploy to upload and publish the worker. You'll get the
+    URL to add to your <code>.env</code> as <code>VITE_PUTER_WORKER_URL</code>.</p>
   <button id="deploy" onclick="deployWorker()">Deploy Worker</button>
   <div id="result"></div>
 
@@ -128,4 +175,5 @@ router.get("/api/projects/get", async ({ request, user }) => {
     }
   </script>
 </body>
+
 </html>

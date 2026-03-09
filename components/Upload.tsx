@@ -70,6 +70,10 @@ const Upload = ({ onComplete }: UploadProps) => {
     [isSignedIn, onComplete],
   );
 
+  const openSignIn = () => {
+    window.dispatchEvent(new CustomEvent("floorplan:openSignIn"));
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     if (!isSignedIn) return;
@@ -84,7 +88,10 @@ const Upload = ({ onComplete }: UploadProps) => {
     e.preventDefault();
     setIsDragging(false);
 
-    if (!isSignedIn) return;
+    if (!isSignedIn) {
+      openSignIn();
+      return;
+    }
 
     const droppedFile = e.dataTransfer.files[0];
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
@@ -106,10 +113,11 @@ const Upload = ({ onComplete }: UploadProps) => {
     <div className="upload">
       {!file ? (
         <div
-          className={`dropzone ${isDragging ? "is-dragging" : ""}`}
+          className={`dropzone ${isDragging ? "is-dragging" : ""} ${!isSignedIn ? "dropzone-requires-auth" : ""}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          onClick={!isSignedIn ? (e) => { e.preventDefault(); openSignIn(); } : undefined}
         >
           <input
             type="file"
