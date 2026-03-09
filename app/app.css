@@ -606,8 +606,20 @@
         @apply p-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors;
       }
 
+      .demo-video-modal-player-wrap {
+        @apply relative w-full aspect-video bg-black min-h-[200px];
+      }
+
+      .demo-video-modal-thumbnail {
+        @apply absolute inset-0 w-full h-full object-cover;
+      }
+
+      .demo-video-modal-spinner {
+        @apply absolute inset-0 flex items-center justify-center bg-black/50;
+      }
+
       .demo-video-modal-player {
-        @apply w-full h-auto block;
+        @apply relative w-full h-full min-h-[200px] block transition-opacity duration-300;
       }
 
       .upload-shell {
