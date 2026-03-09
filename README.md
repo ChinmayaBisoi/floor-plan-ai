@@ -8,6 +8,20 @@ AI-powered floor plan visualization. Upload a 2D floor plan image, get a photore
   <video src="https://youtu.be/QkPUm5mTBq4" controls width="100%" style="max-width: 800px; border-radius: 8px;"></video>
 </p>
 
+### Screenshots
+
+**Comparison**
+
+![Comparison](public/screenshot-visualizer.png)
+
+**Output**
+
+![Output](public/screenshot-upload.png)
+
+**Original**
+
+![Original](public/screenshot-landing.png)
+
 ---
 
 ## Prerequisites
