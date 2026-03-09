@@ -55,6 +55,7 @@ const DEFAULT_AUTH_STATE: AuthState = {
 
 export default function App() {
   const [authState, setAuthState] = useState<AuthState>(DEFAULT_AUTH_STATE);
+  const [authReady, setAuthReady] = useState(false);
 
   const refreshAuth = async () => {
     try {
@@ -68,6 +69,8 @@ export default function App() {
     } catch {
       setAuthState(DEFAULT_AUTH_STATE);
       return false;
+    } finally {
+      setAuthReady(true);
     }
   };
 
@@ -87,7 +90,7 @@ export default function App() {
 
   return (
     <main className="min-h-screen bg-background text-foreground relative z-10">
-      <Outlet context={{ ...authState, refreshAuth, signIn, signOut }} />
+      <Outlet context={{ ...authState, authReady, refreshAuth, signIn, signOut }} />
     </main>
   );
 }

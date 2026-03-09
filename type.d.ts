@@ -5,6 +5,7 @@ interface AuthState {
 }
 
 type AuthContext = AuthState & {
+  authReady: boolean;
   refreshAuth: () => Promise<boolean>;
   signIn: () => Promise<boolean>;
   signOut: () => Promise<boolean>;

@@ -13,6 +13,12 @@
   --shadow-neobrutalism: 4px 4px 0px 0px rgba(0, 0, 0, 1);
 }
 
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -317,6 +323,62 @@
       @apply text-red-500;
     }
 
+    .visualizer-skeleton {
+      @apply w-full grid grid-cols-1 gap-6;
+
+      .skeleton-compare {
+        @apply rounded-xl border border-zinc-200 overflow-hidden bg-white;
+      }
+
+      .skeleton-compare-head {
+        @apply h-16 border-b border-zinc-100 flex items-center justify-between gap-4 px-5;
+      }
+
+      .skeleton-compare-stage {
+        @apply bg-zinc-200 relative overflow-hidden;
+        min-height: 18rem;
+
+        &::after {
+          content: "";
+          @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+          animation: shimmer 1.5s ease-in-out infinite;
+        }
+      }
+
+      .skeleton-panels {
+        @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+      }
+
+      .skeleton-panel {
+        @apply rounded-xl border border-zinc-200 overflow-hidden bg-white;
+      }
+
+      .skeleton-panel-head {
+        @apply h-14 border-b border-zinc-100 px-4;
+      }
+
+      .skeleton-panel-image {
+        @apply bg-zinc-200 relative overflow-hidden;
+        min-height: 16rem;
+
+        &::after {
+          content: "";
+          @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+          animation: shimmer 1.5s ease-in-out infinite;
+        }
+      }
+
+      .skeleton-block {
+        @apply rounded bg-zinc-200 relative overflow-hidden;
+
+        &::after {
+          content: "";
+          @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+          animation: shimmer 1.5s ease-in-out infinite;
+        }
+      }
+    }
+
     .panels-row {
       @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
     }
@@ -464,8 +526,8 @@
         @apply relative flex items-center justify-center min-h-[16rem];
       }
 
-      &.compare-first .compare-stage .render-overlay {
-        @apply absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/60 backdrop-blur-sm;
+      &.compare-first .compare-render-overlay {
+        @apply absolute inset-0 flex flex-col items-center justify-center z-10 bg-zinc-100/90;
       }
 
       .compare-img {
@@ -594,6 +656,49 @@
 
         .projects-loading {
           @apply text-zinc-400 text-sm;
+        }
+      }
+
+      .project-card-skeleton {
+        @apply relative bg-white rounded-2xl overflow-hidden border border-zinc-200/80 flex flex-col h-full pointer-events-none;
+
+        .skeleton-preview {
+          @apply relative overflow-hidden bg-zinc-200;
+          aspect-ratio: 4 / 3;
+
+          &::after {
+            content: "";
+            @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+            animation: shimmer 1.5s ease-in-out infinite;
+          }
+        }
+
+        .skeleton-body {
+          @apply p-4 flex items-center justify-between gap-3 border-t border-zinc-100;
+        }
+
+        .skeleton-line {
+          @apply h-4 rounded bg-zinc-200 relative overflow-hidden;
+
+          &::after {
+            content: "";
+            @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+            animation: shimmer 1.5s ease-in-out infinite;
+          }
+        }
+
+        .skeleton-line-sm {
+          @apply h-3 mt-2 w-20;
+        }
+
+        .skeleton-circle {
+          @apply w-9 h-9 rounded-full bg-zinc-200 relative overflow-hidden shrink-0;
+
+          &::after {
+            content: "";
+            @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/60 to-transparent;
+            animation: shimmer 1.5s ease-in-out infinite;
+          }
         }
       }
 

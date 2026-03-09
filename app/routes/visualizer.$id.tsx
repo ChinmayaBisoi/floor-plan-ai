@@ -212,10 +212,30 @@ export default function VisualizerId() {
           </Button>
         </nav>
         <section className="content">
-          <div className="visualizer-state visualizer-loading">
-            <RefreshCcw className="state-icon spinner" />
-            <h2>Loading project</h2>
-            <p>Fetching your floor plan…</p>
+          <div className="visualizer-skeleton">
+            <div className="skeleton-compare">
+              <div className="skeleton-compare-head">
+                <div className="skeleton-block h-5 w-24" />
+                <div className="skeleton-block h-4 w-40" />
+              </div>
+              <div className="skeleton-compare-stage" />
+            </div>
+            <div className="skeleton-panels">
+              <div className="skeleton-panel">
+                <div className="skeleton-panel-head flex items-center gap-2">
+                  <div className="skeleton-block h-4 w-20" />
+                  <div className="skeleton-block h-4 w-28" />
+                </div>
+                <div className="skeleton-panel-image" />
+              </div>
+              <div className="skeleton-panel">
+                <div className="skeleton-panel-head flex items-center gap-2">
+                  <div className="skeleton-block h-4 w-20" />
+                  <div className="skeleton-block h-4 w-28" />
+                </div>
+                <div className="skeleton-panel-image" />
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -286,11 +306,10 @@ export default function VisualizerId() {
               <div className="compare-fallback">
                 <img src={sourceImage} alt="Original" className="compare-img" />
                 {isProcessing && (
-                  <div className="render-overlay">
-                    <div className="rendering-card">
+                  <div className="compare-render-overlay">
+                    <div className="panel-image-placeholder processing">
                       <RefreshCcw className="spinner" />
-                      <span className="title">Rendering...</span>
-                      <span className="subtitle">Generating your 3D visualization</span>
+                      <span>Rendering…</span>
                     </div>
                   </div>
                 )}

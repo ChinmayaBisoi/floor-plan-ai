@@ -7,7 +7,7 @@ import { useNavigate, useOutletContext } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createProject, getProjects } from "../../lib/puter.action";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "Floor Plan AI" },
     {
@@ -20,7 +20,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   const navigate = useNavigate();
-  const { isSignedIn } = useOutletContext<AuthContext>();
+  const { isSignedIn, authReady } = useOutletContext<AuthContext>();
   const [projects, setProjects] = useState<DesignItem[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(false);
   const isCreatingProjectRef = useRef(false);
@@ -141,7 +141,23 @@ export default function Home() {
           </header>
 
           <div className="projects-grid">
-            {!isSignedIn && (
+            {(!authReady || (isSignedIn && isLoadingProjects)) && (
+              <>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="project-card-skeleton">
+                    <div className="skeleton-preview" />
+                    <div className="skeleton-body">
+                      <div>
+                        <div className="skeleton-line w-32" />
+                        <div className="skeleton-line skeleton-line-sm" />
+                      </div>
+                      <div className="skeleton-circle" />
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+            {authReady && !isSignedIn && (
               <div className="projects-empty">
                 <p>Log in to view your projects.</p>
                 <button
@@ -155,17 +171,12 @@ export default function Home() {
                 </button>
               </div>
             )}
-            {isSignedIn && isLoadingProjects && (
-              <div className="projects-empty">
-                <span className="projects-loading">Loading…</span>
-              </div>
-            )}
-            {isSignedIn && !isLoadingProjects && projects.length === 0 && (
+            {authReady && isSignedIn && !isLoadingProjects && projects.length === 0 && (
               <div className="projects-empty">
                 <p>No projects yet. Upload a floor plan above to get started.</p>
               </div>
             )}
-            {isSignedIn && !isLoadingProjects && projects.length > 0 && (
+            {authReady && isSignedIn && !isLoadingProjects && projects.length > 0 && (
               <>
                 {projects.map(
                   ({ id, name, renderedImage, sourceImage, timestamp }) => (
@@ -186,11 +197,12 @@ export default function Home() {
                           alt=""
                         />
                       </div>
-                      <div className="project-card-body">
-                        <h3>{name}</h3>
-                        <div className="project-card-meta">
-                          <Clock size={12} aria-hidden />
-                          <span>{new Date(timestamp).toLocaleDateString()}</span>
+                      <div className="project-card-body flex items-center justify-between">
+                        <div>
+                          <h3>{name}</h3>
+                          <div className="project-card-meta">
+                            <span>{new Date(timestamp).toLocaleDateString()}</span>
+                          </div>
                         </div>
                         <div className="project-card-arrow">
                           <ArrowUpRight size={18} aria-hidden />
