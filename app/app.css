@@ -123,6 +123,10 @@
       .actions {
         @apply flex items-center space-x-4;
 
+        .greeting {
+          @apply text-xs font-semibold uppercase tracking-wide text-zinc-500;
+        }
+
         .cta {
           @apply inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background px-3 py-1.5 text-xs uppercase tracking-wide bg-primary text-white hover:bg-[#EA580C] shadow-sm no-underline text-inherit;
         }

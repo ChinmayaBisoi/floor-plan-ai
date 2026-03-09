@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useOutletContext } from "react-router";
 import { CheckCircle2, ImageIcon, UploadIcon } from "lucide-react";
 import {
   PROGRESS_INCREMENT,
@@ -11,6 +12,7 @@ interface UploadProps {
 }
 
 const Upload = ({ onComplete }: UploadProps) => {
+  const { isSignedIn } = useOutletContext<AuthContext>();
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -32,6 +34,8 @@ const Upload = ({ onComplete }: UploadProps) => {
 
   const processFile = useCallback(
     (file: File) => {
+      if (!isSignedIn) return;
+
       setFile(file);
       setProgress(0);
 
@@ -63,11 +67,12 @@ const Upload = ({ onComplete }: UploadProps) => {
       };
       reader.readAsDataURL(file);
     },
-    [onComplete],
+    [isSignedIn, onComplete],
   );
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
+    if (!isSignedIn) return;
     setIsDragging(true);
   };
 
@@ -79,6 +84,8 @@ const Upload = ({ onComplete }: UploadProps) => {
     e.preventDefault();
     setIsDragging(false);
 
+    if (!isSignedIn) return;
+
     const droppedFile = e.dataTransfer.files[0];
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
     if (droppedFile && allowedTypes.includes(droppedFile.type)) {
@@ -87,6 +94,8 @@ const Upload = ({ onComplete }: UploadProps) => {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isSignedIn) return;
+
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       processFile(selectedFile);
@@ -106,13 +115,18 @@ const Upload = ({ onComplete }: UploadProps) => {
             type="file"
             className="drop-input"
             accept=".jpg,.jpeg,.png,.webp"
+            disabled={!isSignedIn}
             onChange={handleChange}
           />
           <div className="drop-content">
             <div className="drop-icon">
               <UploadIcon size={20} />
             </div>
-            <p>Click to upload or just drag and drop</p>
+            <p>
+              {isSignedIn
+                ? "Click to upload or just drag and drop"
+                : "Sign in or sign up with Puter to upload"}
+            </p>
             <p className="help">JPG, PNG up to 10MB</p>
           </div>
         </div>
