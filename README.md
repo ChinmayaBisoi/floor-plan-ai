@@ -5,16 +5,8 @@ AI-powered floor plan visualization. Upload a 2D floor plan image, get a photore
 **Stack:** React Router, TypeScript, Tailwind, Puter (auth, hosting, KV, AI), Vite.
 
 <p align="center">
-  <a href="https://youtu.be/QkPUm5mTBq4">
-    <img src="https://img.youtube.com/vi/QkPUm5mTBq4/hqdefault.jpg" alt="Demo video" width="100%" style="max-width: 800px; border-radius: 8px;" />
-  </a>
+  <video src="https://youtu.be/QkPUm5mTBq4" controls width="100%" style="max-width: 800px; border-radius: 8px;"></video>
 </p>
-
-### Screenshots
-
-| Landing | Upload | Visualizer |
-|---------|--------|------------|
-| ![Landing](public/screenshot-landing.png) | ![Upload](public/screenshot-upload.png) | ![Visualizer](public/screenshot-visualizer.png) |
 
 ---
 
