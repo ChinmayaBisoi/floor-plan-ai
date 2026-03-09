@@ -1,13 +1,24 @@
-import { useNavigate, useOutletContext, useParams, useLocation } from "react-router";
+import {
+  useNavigate,
+  useOutletContext,
+  useParams,
+  useLocation,
+} from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { generate3DView } from "../../lib/ai.action";
-import { Box, Download, RefreshCcw, Share2, X } from "lucide-react";
+import { AlertCircle, Box, Download, RefreshCcw, Share2, X } from "lucide-react";
 import Button from "../../components/ui/Button";
 import { createProject, getProjectById } from "../../lib/puter.action";
+import {
+  downloadImageFromUrl,
+  shareImageFromUrl,
+} from "../../lib/utils";
 import {
   ReactCompareSlider,
   ReactCompareSliderImage,
 } from "react-compare-slider";
+
+const baseName = (id: string) => `floor-plan-${id}`;
 
 export default function VisualizerId() {
   const { id } = useParams();
@@ -19,9 +30,10 @@ export default function VisualizerId() {
 
   const [project, setProject] = useState<DesignItem | null>(null);
   const [isProjectLoading, setIsProjectLoading] = useState(true);
-
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [shareFeedback, setShareFeedback] = useState<"ok" | "copy" | "unsupported" | null>(null);
 
   const locationState = location.state as {
     initialImage?: string;
@@ -31,26 +43,40 @@ export default function VisualizerId() {
 
   const handleBack = () => navigate("/");
 
-  const handleExport = () => {
-    if (!currentImage) return;
-    const link = document.createElement("a");
-    link.href = currentImage;
-    link.download = `floor-plan-ai-${id || "design"}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleExport = async (url: string, label: "original" | "rendered") => {
+    if (!url || !id) return;
+    const name = `${baseName(id)}-${label}`;
+    await downloadImageFromUrl(url, name);
+  };
+
+  const handleShare = async (url: string, label: "original" | "rendered") => {
+    if (!url || !id) return;
+    const name = `${baseName(id)}-${label}`;
+    const ok = await shareImageFromUrl(url, name, `${project?.name || "Floor Plan"} – ${label}`);
+    if (ok) {
+      setShareFeedback("ok");
+    } else if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        setShareFeedback("copy");
+      } catch {
+        setShareFeedback("unsupported");
+      }
+    } else {
+      setShareFeedback("unsupported");
+    }
+    setTimeout(() => setShareFeedback(null), 2500);
   };
 
   const runGeneration = async (item: DesignItem) => {
     if (!id || !item.sourceImage) return;
 
+    setGenerationError(null);
     try {
       setIsProcessing(true);
       const result = await generate3DView({ sourceImage: item.sourceImage });
 
       if (result.renderedImage) {
-        setCurrentImage(result.renderedImage);
-
         const updatedItem: DesignItem = {
           ...item,
           renderedImage: result.renderedImage,
@@ -65,12 +91,13 @@ export default function VisualizerId() {
           visibility: "private",
         });
 
-        if (saved) {
-          setProject(saved);
-          setCurrentImage(saved.renderedImage || result.renderedImage);
-        }
+        if (saved) setProject(saved);
+      } else {
+        setGenerationError("Rendering didn’t return an image. Please try again.");
       }
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Rendering failed. Please try again.";
+      setGenerationError(message);
       console.error("Generation failed:", error);
     } finally {
       setIsProcessing(false);
@@ -79,35 +106,44 @@ export default function VisualizerId() {
 
   useEffect(() => {
     let isMounted = true;
+    setLoadError(null);
 
     const loadProject = async () => {
       if (!id) {
+        setLoadError("Missing project ID.");
         setIsProjectLoading(false);
         return;
       }
 
       setIsProjectLoading(true);
+      setLoadError(null);
 
-      const fetchedProject = await getProjectById({ id });
+      try {
+        const fetchedProject = await getProjectById({ id });
 
-      if (!isMounted) return;
+        if (!isMounted) return;
 
-      if (fetchedProject) {
-        setProject(fetchedProject);
-        setCurrentImage(fetchedProject.renderedImage || null);
-      } else if (locationState?.initialImage) {
-        setProject({
-          id,
-          name: locationState.name || `Residence ${id}`,
-          sourceImage: locationState.initialImage,
-          renderedImage: locationState.initialRendered || undefined,
-          timestamp: Date.now(),
-        });
-        setCurrentImage(locationState.initialRendered || null);
+        if (fetchedProject) {
+          setProject(fetchedProject);
+        } else if (locationState?.initialImage) {
+          setProject({
+            id,
+            name: locationState.name || `Residence ${id}`,
+            sourceImage: locationState.initialImage,
+            renderedImage: locationState.initialRendered || undefined,
+            timestamp: Date.now(),
+          });
+        } else {
+          setLoadError("Project not found. It may have been deleted or the link is invalid.");
+        }
+      } catch (e) {
+        if (!isMounted) return;
+        setLoadError("Failed to load project. Please try again.");
+        console.error("Load project failed:", e);
+      } finally {
+        if (isMounted) setIsProjectLoading(false);
+        hasInitialGenerated.current = false;
       }
-
-      setIsProjectLoading(false);
-      hasInitialGenerated.current = false;
     };
 
     loadProject();
@@ -126,7 +162,6 @@ export default function VisualizerId() {
       return;
 
     if (project.renderedImage) {
-      setCurrentImage(project.renderedImage);
       hasInitialGenerated.current = true;
       return;
     }
@@ -134,6 +169,58 @@ export default function VisualizerId() {
     hasInitialGenerated.current = true;
     void runGeneration(project);
   }, [project, isProjectLoading]);
+
+  const sourceImage = project?.sourceImage ?? null;
+  const renderedImage = project?.renderedImage ?? null;
+
+  if (loadError) {
+    return (
+      <div className="visualizer">
+        <nav className="topbar">
+          <a href="/" className="brand">
+            <Box className="logo" />
+            <span className="name">Floor Plan AI</span>
+          </a>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
+            <X className="icon" /> Exit Editor
+          </Button>
+        </nav>
+        <section className="content">
+          <div className="visualizer-state visualizer-error">
+            <AlertCircle className="state-icon" />
+            <h2>Something went wrong</h2>
+            <p>{loadError}</p>
+            <Button onClick={handleBack} className="mt-4">
+              Back to home
+            </Button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  if (isProjectLoading && !project) {
+    return (
+      <div className="visualizer">
+        <nav className="topbar">
+          <a href="/" className="brand">
+            <Box className="logo" />
+            <span className="name">Floor Plan AI</span>
+          </a>
+          <Button variant="ghost" size="sm" onClick={handleBack} className="exit">
+            <X className="icon" /> Exit Editor
+          </Button>
+        </nav>
+        <section className="content">
+          <div className="visualizer-state visualizer-loading">
+            <RefreshCcw className="state-icon spinner" />
+            <h2>Loading project</h2>
+            <p>Fetching your floor plan…</p>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="visualizer">
@@ -148,106 +235,169 @@ export default function VisualizerId() {
       </nav>
 
       <section className="content">
-        <div className="panel">
-          <div className="panel-header">
-            <div className="panel-meta">
-              <p>Project</p>
-              <h2>{project?.name || `Residence ${id}`}</h2>
-              <p className="note">Created by You</p>
-            </div>
-            <div className="panel-actions">
-              <Button
-                size="sm"
-                onClick={handleExport}
-                className="export"
-                disabled={!currentImage}
-              >
-                <Download className="w-4 h-4 mr-2" /> Export
-              </Button>
-              <Button size="sm" onClick={() => {}} className="share">
-                <Share2 className="w-4 h-4 mr-2" />
-                Share
-              </Button>
-            </div>
-          </div>
-
-          <div
-            className={`render-area ${isProcessing ? "is-processing" : ""}`}
-          >
-            {currentImage ? (
-              <img
-                src={currentImage}
-                alt="AI Render"
-                className="render-img"
-              />
-            ) : (
-              <div className="render-placeholder">
-                {project?.sourceImage && (
-                  <img
-                    src={project.sourceImage}
-                    alt="Original"
-                    className="render-fallback"
-                  />
-                )}
-              </div>
-            )}
-
-            {isProcessing && (
-              <div className="render-overlay">
-                <div className="rendering-card">
-                  <RefreshCcw className="spinner" />
-                  <span className="title">Rendering...</span>
-                  <span className="subtitle">
-                    Generating your 3D visualization
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="panel compare">
+        {/* 1. Comparison at top */}
+        <div className="panel compare compare-first">
           <div className="panel-header">
             <div className="panel-meta">
               <p>Comparison</p>
-              <h3>Before and After</h3>
+              <h3>Before &amp; After</h3>
             </div>
-            <div className="hint">Drag to compare</div>
+            <span className="compare-hint">Drag the slider to compare</span>
+            <div className="panel-actions">
+                <Button
+                  size="sm"
+                  onClick={() => renderedImage && handleExport(renderedImage, "rendered")}
+                  className="export"
+                  disabled={!renderedImage}
+                >
+                  <Download className="w-4 h-4 mr-2" /> Export
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => renderedImage && handleShare(renderedImage, "rendered")}
+                  className="share"
+                  disabled={!renderedImage}
+                >
+                  <Share2 className="w-4 h-4 mr-2" /> Share
+                </Button>
+              </div>
           </div>
-
           <div className="compare-stage">
-            {project?.sourceImage && currentImage ? (
+            {sourceImage && renderedImage ? (
               <ReactCompareSlider
                 defaultValue={50}
                 style={{ width: "100%", height: "auto" }}
                 itemOne={
                   <ReactCompareSliderImage
-                    src={project.sourceImage}
-                    alt="before"
+                    src={sourceImage}
+                    alt="Original floor plan"
                     className="compare-img"
                   />
                 }
                 itemTwo={
                   <ReactCompareSliderImage
-                    src={currentImage || project.renderedImage || ""}
-                    alt="after"
+                    src={renderedImage}
+                    alt="Rendered"
                     className="compare-img"
                   />
                 }
               />
+            ) : sourceImage ? (
+              <div className="compare-fallback">
+                <img src={sourceImage} alt="Original" className="compare-img" />
+                {isProcessing && (
+                  <div className="render-overlay">
+                    <div className="rendering-card">
+                      <RefreshCcw className="spinner" />
+                      <span className="title">Rendering...</span>
+                      <span className="subtitle">Generating your 3D visualization</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="compare-fallback">
-                {project?.sourceImage && (
-                  <img
-                    src={project.sourceImage}
-                    alt="Before"
-                    className="compare-img"
-                  />
-                )}
+                <span className="text-zinc-400 text-sm">Loading…</span>
               </div>
             )}
           </div>
         </div>
+
+        {/* 2. Original and Rendered side by side */}
+        <div className="panels-row">
+          <div className="panel panel-half">
+            <div className="panel-header">
+              <div className="panel-meta">
+                <p>Original</p>
+                <h3>Floor plan</h3>
+              </div>
+              <div className="panel-actions">
+                <Button
+                  size="sm"
+                  onClick={() => sourceImage && handleExport(sourceImage, "original")}
+                  className="export"
+                  disabled={!sourceImage}
+                >
+                  <Download className="w-4 h-4 mr-2" /> Export
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => sourceImage && handleShare(sourceImage, "original")}
+                  className="share"
+                  disabled={!sourceImage}
+                >
+                  <Share2 className="w-4 h-4 mr-2" /> Share
+                </Button>
+              </div>
+            </div>
+            <div className="panel-image-wrap">
+              {sourceImage ? (
+                <img src={sourceImage} alt="Original floor plan" className="panel-img" />
+              ) : (
+                <div className="panel-image-placeholder">No image</div>
+              )}
+            </div>
+          </div>
+
+          <div className="panel panel-half">
+            <div className="panel-header">
+              <div className="panel-meta">
+                <p>Rendered</p>
+                <h3>3D visualization</h3>
+              </div>
+              <div className="panel-actions">
+                <Button
+                  size="sm"
+                  onClick={() => renderedImage && handleExport(renderedImage, "rendered")}
+                  className="export"
+                  disabled={!renderedImage}
+                >
+                  <Download className="w-4 h-4 mr-2" /> Export
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => renderedImage && handleShare(renderedImage, "rendered")}
+                  className="share"
+                  disabled={!renderedImage}
+                >
+                  <Share2 className="w-4 h-4 mr-2" /> Share
+                </Button>
+              </div>
+            </div>
+            <div className="panel-image-wrap">
+              {renderedImage ? (
+                <img src={renderedImage} alt="Rendered" className="panel-img" />
+              ) : generationError ? (
+                <div className="panel-image-placeholder error">
+                  <AlertCircle className="state-icon" />
+                  <p>{generationError}</p>
+                  <Button
+                    size="sm"
+                    onClick={() => project && runGeneration(project)}
+                    disabled={isProcessing}
+                  >
+                    Try again
+                  </Button>
+                </div>
+              ) : isProcessing ? (
+                <div className="panel-image-placeholder processing">
+                  <RefreshCcw className="spinner" />
+                  <span>Rendering…</span>
+                </div>
+              ) : (
+                <div className="panel-image-placeholder">Not generated yet</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {shareFeedback && (
+          <div className="visualizer-toast" role="status">
+            {shareFeedback === "ok" && "Shared successfully."}
+            {shareFeedback === "copy" && "Link copied to clipboard."}
+            {shareFeedback === "unsupported" && "Share not available; try Export to save the image."}
+          </div>
+        )}
       </section>
     </div>
   );

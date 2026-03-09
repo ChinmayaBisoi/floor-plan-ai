@@ -88,6 +88,60 @@ export const fetchBlobFromUrl = async (
   }
 };
 
+const getBlobFromImageUrl = async (
+  url: string,
+): Promise<{ blob: Blob; contentType: string } | null> => {
+  const fetched = await fetchBlobFromUrl(url);
+  if (fetched) return fetched;
+  const blob = await imageUrlToPngBlob(url);
+  if (blob) return { blob, contentType: "image/png" };
+  return null;
+};
+
+/** Trigger download of an image from a URL (data URL or http). */
+export const downloadImageFromUrl = async (
+  url: string,
+  filename: string,
+): Promise<boolean> => {
+  if (typeof window === "undefined") return false;
+  const result = await getBlobFromImageUrl(url);
+  if (!result) return false;
+  const ext = getImageExtension(result.contentType, url);
+  const name = filename.endsWith(`.${ext}`) ? filename : `${filename}.${ext}`;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(result.blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  return true;
+};
+
+/** Share an image via Web Share API (file). Returns false if not supported or fails. */
+export const shareImageFromUrl = async (
+  url: string,
+  filename: string,
+  title?: string,
+): Promise<boolean> => {
+  if (typeof navigator === "undefined" || !navigator.share) return false;
+  const result = await getBlobFromImageUrl(url);
+  if (!result) return false;
+  const ext = getImageExtension(result.contentType, url);
+  const name = filename.endsWith(`.${ext}`) ? filename : `${filename}.${ext}`;
+  const file = new File([result.blob], name, { type: result.contentType });
+  try {
+    await navigator.share({
+      files: [file],
+      title: title || name,
+    });
+    return true;
+  } catch (e) {
+    if ((e as Error).name === "AbortError") return true;
+    return false;
+  }
+};
+
 export const imageUrlToPngBlob = async (url: string): Promise<Blob | null> => {
   if (typeof window === "undefined") return null;
 

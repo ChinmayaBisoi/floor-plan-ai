@@ -286,7 +286,79 @@
     }
 
     .content {
-      @apply w-full max-w-6xl grid grid-cols-1 gap-6;
+      @apply w-full max-w-6xl grid grid-cols-1 gap-6 relative;
+    }
+
+    .visualizer-state {
+      @apply w-full flex flex-col items-center justify-center py-16 px-6 text-center;
+
+      .state-icon {
+        @apply w-12 h-12 mb-4 text-zinc-400;
+      }
+
+      .spinner {
+        @apply animate-spin text-primary;
+      }
+
+      h2 {
+        @apply text-xl font-serif font-bold text-black mb-2;
+      }
+
+      p {
+        @apply text-sm text-zinc-500 max-w-sm;
+      }
+    }
+
+    .visualizer-loading .state-icon {
+      @apply text-primary;
+    }
+
+    .visualizer-error .state-icon {
+      @apply text-red-500;
+    }
+
+    .panels-row {
+      @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+    }
+
+    .panel-half {
+      @apply flex flex-col min-h-0;
+    }
+
+    .panel-image-wrap {
+      @apply relative bg-zinc-100 min-h-[20rem] flex items-center justify-center overflow-hidden;
+    }
+
+    .panel-img {
+      @apply w-full h-full object-contain;
+    }
+
+    .panel-image-placeholder {
+      @apply text-zinc-400 text-sm;
+
+      &.error {
+        @apply flex flex-col items-center gap-3 text-center p-4;
+
+        .state-icon {
+          @apply w-10 h-10 text-red-500 shrink-0;
+        }
+
+        p {
+          @apply text-zinc-600 text-sm max-w-xs;
+        }
+      }
+
+      &.processing {
+        @apply flex flex-col items-center gap-2 text-zinc-500;
+
+        .spinner {
+          @apply w-8 h-8 animate-spin text-primary;
+        }
+      }
+    }
+
+    .visualizer-toast {
+      @apply fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg bg-zinc-800 text-white text-sm shadow-lg z-50;
     }
 
     .panel {
@@ -309,6 +381,10 @@
 
         .panel-meta .note {
           @apply text-xs text-zinc-500 mt-1;
+        }
+
+        .panel-actions {
+          @apply flex items-center gap-3;
         }
 
         .panel-actions .export {
@@ -362,26 +438,38 @@
 
       &.compare {
         @apply shadow-xl;
+      }
 
-        .panel-header {
-          @apply flex items-center justify-between;
-        }
+      &.compare-first .panel-header {
+        @apply grid grid-cols-[1fr_auto_1fr] items-center gap-4;
+      }
 
-        .hint {
-          @apply text-xs text-zinc-400;
-        }
+      &.compare-first .compare-hint {
+        @apply text-xs text-zinc-400 text-center justify-self-center;
+      }
 
-        .compare-stage {
-          @apply relative bg-zinc-100 overflow-hidden;
-        }
+      &.compare-first .panel-actions {
+        @apply justify-self-end;
+      }
 
-        .compare-fallback {
-          @apply flex items-center justify-center;
-        }
+      .hint {
+        @apply text-xs text-zinc-400;
+      }
 
-        .compare-img {
-          @apply w-full h-auto object-contain;
-        }
+      &.compare-first .compare-stage {
+        @apply relative bg-zinc-100 overflow-hidden min-h-[16rem];
+      }
+
+      &.compare-first .compare-fallback {
+        @apply relative flex items-center justify-center min-h-[16rem];
+      }
+
+      &.compare-first .compare-stage .render-overlay {
+        @apply absolute inset-0 flex flex-col items-center justify-center z-10 bg-white/60 backdrop-blur-sm;
+      }
+
+      .compare-img {
+        @apply w-full h-auto object-contain;
       }
     }
   }
