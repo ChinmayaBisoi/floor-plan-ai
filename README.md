@@ -5,7 +5,7 @@ AI-powered floor plan visualization. Upload a 2D floor plan image, get a photore
 **Stack:** React Router, TypeScript, Tailwind, Puter (auth, hosting, KV, AI), Vite.
 
 <p align="center">
-  <video src="public/application-demo-compressed.mp4" controls width="100%" style="max-width: 800px; border-radius: 8px;"></video>
+  <video src="https://github.com/ChinmayaBisoi/floor-plan-ai/raw/main/public/application-demo-compressed.mp4" controls width="100%" style="max-width: 800px; border-radius: 8px;"></video>
 </p>
 
 ---
