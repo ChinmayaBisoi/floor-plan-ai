@@ -1,12 +1,19 @@
 import type { Route } from "./+types/home";
 import Navbar from "../../components/Navbar";
-import { ArrowRight, ArrowUpRight, Clock, Layers } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Layers } from "lucide-react";
 import Button from "../../components/ui/Button";
 import DemoVideoModal from "../../components/DemoVideoModal";
 import Upload from "../../components/Upload";
 import { useNavigate, useOutletContext } from "react-router";
 import { useEffect, useRef, useState } from "react";
 import { createProject, getProjects } from "../../lib/puter.action";
+import {
+  ReactCompareSlider,
+  ReactCompareSliderImage,
+} from "react-compare-slider";
+
+const DEMO_ORIGINAL = "/demo-output/original.jpg";
+const DEMO_RENDERED = "/demo-output/ai-generated.png";
 
 export function meta({ }: Route.MetaArgs) {
   return [
@@ -125,6 +132,42 @@ export default function Home() {
         </div>
 
         <DemoVideoModal open={showDemoModal} onClose={() => setShowDemoModal(false)} />
+
+        <section className="demo-compare" aria-label="Before and after example">
+          <div className="demo-compare-inner">
+            <div className="demo-compare-header">
+              <h2 className="demo-compare-title">See what the app does</h2>
+              <p className="demo-compare-subtitle">
+                Upload a 2D floor plan and get a photorealistic 3D-style render.
+              </p>
+            </div>
+            <div className="demo-compare-labels">
+              <span>Original</span>
+              <span>AI rendered</span>
+            </div>
+            <div className="demo-compare-stage">
+              <ReactCompareSlider
+                defaultValue={50}
+                style={{ width: "100%", height: "auto" }}
+                itemOne={
+                  <ReactCompareSliderImage
+                    src={DEMO_ORIGINAL}
+                    alt="Original floor plan"
+                    className="demo-compare-img"
+                  />
+                }
+                itemTwo={
+                  <ReactCompareSliderImage
+                    src={DEMO_RENDERED}
+                    alt="AI-rendered 3D visualization"
+                    className="demo-compare-img"
+                  />
+                }
+              />
+            </div>
+            <p className="demo-compare-hint">Drag the slider to compare before and after</p>
+          </div>
+        </section>
 
         <div id="upload" className="upload-shell">
           <div className="grid-overlay" />

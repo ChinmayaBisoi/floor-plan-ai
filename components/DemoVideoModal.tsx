@@ -26,7 +26,10 @@ export default function DemoVideoModal({ open, onClose }: Props) {
   useEffect(() => {
     if (!open || !videoRef.current) return;
     const video = videoRef.current;
-    const onCanPlay = () => setLoading(false);
+    const onCanPlay = () => {
+      setLoading(false);
+      video.play().catch(() => { /* autoplay may be blocked */ });
+    };
     video.addEventListener("canplay", onCanPlay);
     return () => video.removeEventListener("canplay", onCanPlay);
   }, [open]);
