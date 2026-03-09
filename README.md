@@ -42,12 +42,12 @@ App runs at [http://localhost:5173](http://localhost:5173).
 
 ## Flow
 
-1. **Sign in** — Log in with Puter (navbar)
-2. **Upload** — Drop a floor plan (JPG/PNG, up to 10MB)
-3. **Project created** — Stored in Puter KV, you're redirected to the visualizer
-4. **AI render** — If no render exists, AI generates one; you see a processing overlay
-5. **Compare** — Before/after slider
-6. **Export** — Download the rendered image
+1. **Sign in** — Log in with Puter (navbar). From projects or upload, a short consent screen explains Puter before their sign-in.
+2. **Upload** — Drop a floor plan (JPG/PNG, up to 10MB). Requires sign-in; clicking/dropping when signed out opens the consent flow.
+3. **Projects** — Grid shows shimmer until auth is known; then either “Log in to view your projects” or your project cards (with shimmer while loading).
+4. **Project created** — Stored in Puter KV, redirect to visualizer.
+5. **Visualizer** — Comparison slider at top; original and rendered panels below with Export and Share for each (and for the comparison). Loading/error states with shimmer and retry.
+6. **Export / Share** — Download or share original or rendered image (Web Share API with clipboard fallback).
 
 ## Scripts
 
@@ -65,11 +65,12 @@ floor-plan-ai/
 ├── app/
 │   ├── routes/
 │   │   ├── home.tsx           # Landing, upload, projects grid
-│   │   └── visualizer.$id.tsx # Before/after view, export
-│   ├── root.tsx               # Auth context, layout
+│   │   └── visualizer.$id.tsx # Comparison, original/rendered panels, export/share, loading & error states
+│   ├── root.tsx               # Auth context (authReady), layout
 │   └── app.css
 ├── components/
 │   ├── Navbar.tsx
+│   ├── PuterConsentModal.tsx  # Pre-consent when signing in from projects/upload
 │   ├── Upload.tsx
 │   └── ui/
 ├── lib/
